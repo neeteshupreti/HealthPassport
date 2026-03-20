@@ -193,8 +193,6 @@ Pillow==10.1.0      # Image processing (required by qrcode and ImageField)
 
 ---
 
-## 🏆 Built for Hackathon
-
 Health Passport demonstrates:
 - Clean 3-tier Django architecture
 - Role-based access control without third-party packages
