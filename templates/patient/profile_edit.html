@@ -1,0 +1,110 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Profile — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header">
+    <h1>✏️ Edit Your Profile</h1>
+    <p>Keep your health information up to date</p>
+  </div>
+
+  <div class="card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;color:var(--hp-teal);">Personal Information</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" name="date_of_birth" class="form-input" value="{{ form.date_of_birth.value|default:'' }}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select name="gender" class="form-input">
+            <option value="">Select Gender</option>
+            {% for val, label in form.fields.gender.choices %}
+              <option value="{{ val }}" {% if form.gender.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Blood Group</label>
+          <select name="blood_group" class="form-input">
+            {% for val, label in form.fields.blood_group.choices %}
+              <option value="{{ val }}" {% if form.blood_group.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profile Photo</label>
+          <input type="file" name="profile_photo" class="form-input-file" accept="image/*" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Province</label>
+          <select name="province" class="form-input">
+            <option value="">Select Province</option>
+            {% for val,label in form.fields.province.choices %}
+              <option value="{{ val }}" {% if form.province.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">District</label>
+          <select name="district" class="form-input">
+            <option value="">Select District</option>
+            {% for val,label in form.fields.district.choices %}
+              <option value="{{ val }}" {% if form.district.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Municipality</label>
+          <input type="text" name="municipality" class="form-input" value="{{ form.municipality.value|default:'' }}" placeholder="Municipality" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Street / Ward / Locality</label>
+        <textarea name="address" class="form-input" rows="2">{{ form.address.value|default:'' }}</textarea>
+      </div>
+
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;margin-top:24px;color:var(--hp-red);">🚨 Emergency Information</h3>
+      <div style="background:#fef2f2;border-radius:10px;padding:14px;margin-bottom:16px;font-size:0.875rem;color:#991b1b;">
+        This information is visible on your public emergency QR code page. Fill it carefully.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Allergies</label>
+        <textarea name="allergies" class="form-input" rows="3" placeholder="One per line, e.g.&#10;Penicillin&#10;Peanuts&#10;Dust">{{ form.allergies.value|default:'' }}</textarea>
+        <p class="form-help">Enter each allergy on a new line</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Chronic Diseases / Conditions</label>
+        <textarea name="chronic_diseases" class="form-input" rows="3" placeholder="One per line, e.g.&#10;Type 2 Diabetes&#10;Hypertension">{{ form.chronic_diseases.value|default:'' }}</textarea>
+      </div>
+
+      <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:16px;margin-top:24px;color:var(--hp-amber);">📞 Emergency Contact</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Contact Name</label>
+          <input type="text" name="emergency_contact_name" class="form-input" value="{{ form.emergency_contact_name.value|default:'' }}" placeholder="Full name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relation</label>
+          <input type="text" name="emergency_contact_relation" class="form-input" value="{{ form.emergency_contact_relation.value|default:'' }}" placeholder="e.g. Spouse, Parent" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact Phone</label>
+        <input type="text" name="emergency_contact_phone" class="form-input" value="{{ form.emergency_contact_phone.value|default:'' }}" placeholder="+977 98XXXXXXXX" />
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button type="submit" class="btn btn-primary" style="padding:11px 28px;">💾 Save Changes</button>
+        <a href="{% url 'patient_dashboard' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,253 @@
+{% extends 'core/base.html' %}
+{% block title %}Patient Dashboard — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+    <div>
+      <div class="page-header" style="margin-bottom:6px;">
+        <h1>👋 Hello, {{ patient.user.first_name|default:patient.user.username }}</h1>
+        <p>Your Health Passport overview</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="text-muted text-sm">HPass No:</span>
+        <span class="health-id-display">{{ patient.hpass_number }}</span>
+        {% if patient.blood_group != 'Unknown' %}
+          <span class="badge badge-red">🩸 {{ patient.blood_group }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="{% url 'patient_report_issue' %}" class="btn btn-outline btn-sm">🐞 Report an issue</a>
+    </div>
+  </div>
+
+  <!-- HPass card with embedded QR -->
+  <div class="card mb-4" style="display:grid;grid-template-columns:1fr;gap:18px;">
+    <div style="border:1px solid var(--hp-gray-200);border-radius:12px;padding:18px;background:#fff;">
+      <h2 style="font-size:1.2rem;margin-bottom:12px;color:var(--hp-blue);">Health Passport ID</h2>
+      <div style="display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:start;">
+        <div>
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+            {% if patient.profile_photo %}
+              <img src="{{ patient.profile_photo.url }}" alt="{{ patient.user.get_full_name|default:patient.user.username }}" style="width:76px;height:76px;border-radius:999px;object-fit:cover;border:2px solid var(--hp-gray-200);" />
+            {% else %}
+              <div style="width:76px;height:76px;border-radius:999px;background:var(--hp-gray-100);display:flex;align-items:center;justify-content:center;color:var(--hp-gray-400);font-size:1.5rem;">👤</div>
+            {% endif %}
+            <div>
+              <div style="font-size:0.85rem;color:var(--hp-gray-500);letter-spacing:0.08em;text-transform:uppercase;">Patient</div>
+              <div style="font-weight:700;font-size:1rem;">{{ patient.user.get_full_name|default:patient.user.username }}</div>
+            </div>
+          </div>
+          <div style="background:#f8fafc;padding:12px;border-radius:10px;border:1px solid var(--hp-gray-200);margin-bottom:12px;">
+            <div style="font-size:0.75rem;color:var(--hp-gray-500);letter-spacing:0.1em;text-transform:uppercase;">National ID</div>
+            <div style="font-size:1.15rem;font-weight:700;letter-spacing:0.04em;color:var(--hp-gray-900);margin-top:6px;">{{ patient.hpass_number }}</div>
+          </div>
+          <p style="margin-bottom:6px;"><span style="color:var(--hp-gray-500);font-size:0.85rem;">Name:</span> <strong>{{ patient.user.get_full_name|default:patient.user.username }}</strong></p>
+          <p style="margin-bottom:6px;"><span style="color:var(--hp-gray-500);font-size:0.85rem;">D.O.B:</span> <strong>{{ patient.date_of_birth|default:'N/A' }}</strong></p>
+          <p style="margin-bottom:6px;"><span style="color:var(--hp-gray-500);font-size:0.85rem;">Gender:</span> <strong>{{ patient.get_gender_display|default:'Not set' }}</strong></p>
+          <p style="margin-bottom:6px;"><span style="color:var(--hp-gray-500);font-size:0.85rem;">Blood Group:</span> <strong>{{ patient.blood_group|default:'Unknown' }}</strong></p>
+          <p style="margin-bottom:10px;"><span style="color:var(--hp-gray-500);font-size:0.85rem;">Contact:</span> <strong>{{ patient.phone_number|default:'–' }}</strong></p>
+          {% if patient.emergency_contact_name %}
+            <p style="margin-bottom:10px;"><span style="color:var(--hp-gray-500);font-size:0.85rem;">Emergency Contact:</span> <strong>{{ patient.emergency_contact_name }} ({{ patient.emergency_contact_phone }})</strong></p>
+          {% endif %}
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:0.75rem;color:var(--hp-gray-500);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">ID QR</div>
+          {% if patient.qr_code %}
+            <img src="{{ patient.qr_code.url }}" alt="Health QR Code" style="width:200px;height:200px;border-radius:12px;border:2px solid var(--hp-gray-200);" />
+            <div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+              <a href="{{ patient.qr_code.url }}" download class="btn btn-outline btn-sm">Download</a>
+              <a href="{% url 'regenerate_qr' %}" class="btn btn-ghost btn-sm">Regenerate</a>
+            </div>
+          {% else %}
+            <div style="width:200px;height:200px;border-radius:12px;border:2px dashed var(--hp-gray-300);display:flex;align-items:center;justify-content:center;margin:0 auto;color:var(--hp-gray-400);">QR not generated</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">{{ total_records }}</div>
+      <div class="stat-label">Total Records</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ approved_hospitals.count }}</div>
+      <div class="stat-label">Linked Hospitals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--hp-amber);">{{ pending_requests.count }}</div>
+      <div class="stat-label">Pending Requests</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--hp-green);">{{ unread_notifications.count }}</div>
+      <div class="stat-label">Notifications</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+
+      <!-- Recent Records -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <span class="card-title">📋 Recent Records</span>
+        </div>
+        {% if recent_records %}
+          {% for record in recent_records %}
+          <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--hp-gray-100);">
+            <div class="record-icon record-icon-{{ record.record_type }}">
+              {% if record.record_type == 'report' %}📄
+              {% elif record.record_type == 'prescription' %}💊
+              {% elif record.record_type == 'lab_result' %}🧪
+              {% elif record.record_type == 'scan' %}🔬
+              {% elif record.record_type == 'vaccination' %}💉
+              {% elif record.record_type == 'discharge' %}🏠
+              {% else %}📁{% endif %}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:0.9rem;color:var(--hp-gray-900);">{{ record.title }}</div>
+              <div style="font-size:0.78rem;color:var(--hp-gray-400);">{{ record.uploaded_by.hospital_name }} · {{ record.record_date }}</div>
+            </div>
+            {% if record.is_verified %}
+              <span class="badge badge-green">✓ Verified</span>
+            {% endif %}
+            <a href="{% url 'download_record' record.id %}" class="btn btn-ghost btn-sm">⬇</a>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">📂</div>
+            <h3>No Records Yet</h3>
+            <p>Your medical records will appear here once a hospital uploads them.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Linked Hospitals -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🏥 Linked Hospitals</span>
+          <a href="{% url 'patient_access_requests' %}" class="btn btn-ghost btn-sm">Manage</a>
+        </div>
+        {% if approved_hospitals %}
+          {% for ar in approved_hospitals %}
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--hp-gray-100);">
+            <div style="width:36px;height:36px;border-radius:9px;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🏥</div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:0.9rem;">{{ ar.hospital.hospital_name }}</div>
+              <div style="font-size:0.78rem;color:var(--hp-gray-400);">{{ ar.hospital.get_hospital_type_display }}</div>
+            </div>
+            <span class="badge badge-green">Active</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted text-sm" style="text-align:center;padding:20px;">No hospitals linked yet. Your hospital partners can link directly once they're verified.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div>
+      <!-- QR Code Card -->
+      <div class="card mb-4" style="text-align:center;">
+        <div class="card-title" style="margin-bottom:16px;">📱 Your Health QR Code</div>
+        {% if patient.qr_code %}
+          <img src="{{ patient.qr_code.url }}" alt="Health QR Code" style="width:180px;height:180px;border-radius:12px;border:4px solid var(--hp-gray-100);" />
+          <p style="color:var(--hp-gray-400);font-size:0.78rem;margin-top:10px;">Scan for emergency info</p>
+          <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <a href="{{ patient.qr_code.url }}" download class="btn btn-outline btn-sm">⬇ Download</a>
+          </div>
+        {% else %}
+          <div style="width:180px;height:180px;border-radius:12px;border:2px dashed var(--hp-gray-300);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:0.85rem;color:var(--hp-gray-400);">QR not generated</div>
+          <div style="margin-top:12px;font-size:0.85rem;color:var(--hp-gray-500);">Contact support to generate your QR code.</div>
+        {% endif %}
+      </div>
+
+      <!-- Emergency Info -->
+      <div class="card mb-4">
+        <div class="card-title" style="margin-bottom:14px;">🚨 Emergency Info</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--hp-gray-50);border-radius:8px;">
+            <span style="font-size:0.8rem;color:var(--hp-gray-500);">Blood Group</span>
+            <strong style="color:var(--hp-red);">{{ patient.blood_group }}</strong>
+          </div>
+          <div style="padding:10px 12px;background:var(--hp-gray-50);border-radius:8px;">
+            <span style="font-size:0.8rem;color:var(--hp-gray-500);">Allergies</span>
+            <div style="margin-top:4px;">
+              {% for allergy in patient.get_allergies_list %}
+                <span class="badge badge-red" style="margin:2px 2px 2px 0;">{{ allergy }}</span>
+              {% empty %}
+                <span style="font-size:0.8rem;color:var(--hp-gray-400);">None listed</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div style="padding:10px 12px;background:var(--hp-gray-50);border-radius:8px;">
+            <span style="font-size:0.8rem;color:var(--hp-gray-500);">Chronic Conditions</span>
+            <div style="margin-top:4px;">
+              {% for disease in patient.get_chronic_diseases_list %}
+                <span class="badge badge-amber" style="margin:2px 2px 2px 0;">{{ disease }}</span>
+              {% empty %}
+                <span style="font-size:0.8rem;color:var(--hp-gray-400);">None listed</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% if patient.emergency_contact_name %}
+          <div style="padding:10px 12px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
+            <span style="font-size:0.8rem;color:var(--hp-gray-500);">Emergency Contact</span>
+            <div style="font-weight:600;margin-top:2px;">{{ patient.emergency_contact_name }}</div>
+            <div style="font-size:0.82rem;color:var(--hp-gray-500);">{{ patient.emergency_contact_phone }} · {{ patient.emergency_contact_relation }}</div>
+          </div>
+          {% endif %}
+        </div>
+        <a href="{% url 'patient_profile_edit' %}" class="btn btn-outline btn-sm w-full" style="margin-top:14px;">Edit Emergency Info</a>
+      </div>
+
+      <!-- Notifications -->
+      {% if unread_notifications %}
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔔 Notifications</span>
+          <a href="{% url 'notifications' %}" class="btn btn-ghost btn-sm">All</a>
+        </div>
+        {% for notif in unread_notifications %}
+        <div style="padding:10px 0;border-bottom:1px solid var(--hp-gray-100);">
+          <div style="font-weight:600;font-size:0.85rem;">{{ notif.title }}</div>
+          <div style="font-size:0.78rem;color:var(--hp-gray-500);">{{ notif.message }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Timeline below profile -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <span class="card-title">📖 Health Timeline (Recent)</span>
+      <a href="{% url 'patient_timeline' %}" class="btn btn-ghost btn-sm">View Full Timeline</a>
+    </div>
+    {% if timeline_records %}
+      {% for record in timeline_records %}
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--hp-gray-100);">
+        <div class="record-icon record-icon-{{ record.record_type }}">{% if record.record_type == 'report' %}📄{% elif record.record_type == 'prescription' %}💊{% elif record.record_type == 'lab_result' %}🧪{% elif record.record_type == 'scan' %}🔬{% elif record.record_type == 'vaccination' %}💉{% elif record.record_type == 'discharge' %}🏠{% else %}📁{% endif %}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:0.9rem;color:var(--hp-gray-900);">{{ record.title }}</div>
+          <div style="font-size:0.78rem;color:var(--hp-gray-400);">{{ record.record_date|date:'M d, Y' }} · {{ record.uploaded_by.hospital_name|default:'Hospital' }}</div>
+        </div>
+        <a href="{% url 'download_record' record.id %}" class="btn btn-ghost btn-sm">⬇</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state" style="padding:28px 24px;">
+        <div class="empty-state-icon">📊</div>
+        <h3>No Recent Timeline Entries</h3>
+        <p>Once records are added, you’ll see them here in the timeline.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

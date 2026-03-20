@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+{% block title %}Notifications — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header"><h1>🔔 Notifications</h1><p>All your recent activity</p></div>
+
+  {% if notifications %}
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    {% for notif in notifications %}
+    <div class="card" style="padding:16px 20px;{% if not notif.is_read %}border-left:4px solid var(--hp-blue);{% endif %}">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="font-size:1.4rem;margin-top:2px;">
+          {% if notif.notif_type == 'access_request' %}📩
+          {% elif notif.notif_type == 'access_approved' %}✅
+          {% elif notif.notif_type == 'access_rejected' %}❌
+          {% elif notif.notif_type == 'access_revoked' %}🚫
+          {% elif notif.notif_type == 'record_uploaded' %}📤
+          {% elif notif.notif_type == 'record_verified' %}✓
+          {% else %}ℹ️{% endif %}
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.9rem;">{{ notif.title }}</div>
+          <div style="font-size:0.85rem;color:var(--hp-gray-600);margin-top:4px;">{{ notif.message }}</div>
+          <div style="font-size:0.75rem;color:var(--hp-gray-400);margin-top:6px;">{{ notif.created_at|date:"M d, Y · H:i" }}</div>
+          {% if notif.link %}
+            <a href="{{ notif.link }}" class="btn btn-ghost btn-sm" style="margin-top:8px;">View Details</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-icon">🔕</div>
+      <h3>No Notifications</h3>
+      <p>You're all caught up! Notifications about access requests and record uploads will appear here.</p>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

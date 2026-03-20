@@ -1,0 +1,146 @@
+{% extends 'core/base.html' %}
+{% block title %}Health Passport — Unified Digital Medical Records{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0d9488 100%);
+    color: white; text-align: center;
+    padding: 96px 24px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-content { position: relative; max-width: 720px; margin: 0 auto; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 16px; border-radius: 20px;
+    background: rgba(255,255,255,0.12); color: #7dd3fc;
+    font-size: 0.8rem; font-weight: 600; margin-bottom: 24px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 3.5rem; line-height: 1.1;
+    margin-bottom: 20px; letter-spacing: -0.03em;
+  }
+  .hero h1 .accent { color: #5eead4; }
+  .hero p {
+    font-size: 1.15rem; color: rgba(255,255,255,0.75);
+    margin-bottom: 36px; line-height: 1.7;
+  }
+  .hero-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .btn-hero-primary {
+    background: white; color: var(--hp-blue-dark);
+    padding: 14px 32px; border-radius: 10px;
+    font-weight: 700; font-size: 1rem;
+    text-decoration: none; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+  .btn-hero-outline {
+    background: transparent; color: white;
+    padding: 14px 32px; border-radius: 10px;
+    font-weight: 600; font-size: 1rem;
+    text-decoration: none; transition: all 0.2s;
+    border: 2px solid rgba(255,255,255,0.4);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-hero-outline:hover { background: rgba(255,255,255,0.1); }
+
+  .features { padding: 80px 24px; }
+  .features-inner { max-width: 1100px; margin: 0 auto; }
+  .features-header { text-align: center; margin-bottom: 56px; }
+  .features-header h2 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 2.2rem; color: var(--hp-gray-900);
+  }
+  .features-header p { color: var(--hp-gray-500); margin-top: 10px; font-size: 1.05rem; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .feature-card {
+    background: white; border-radius: 16px;
+    border: 1px solid var(--hp-gray-200);
+    padding: 32px; transition: all 0.2s;
+  }
+  .feature-card:hover { border-color: var(--hp-blue); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .feature-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; margin-bottom: 20px;
+  }
+  .feature-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; }
+  .feature-card p { color: var(--hp-gray-500); font-size: 0.9rem; line-height: 1.7; }
+
+  .cta {
+    background: linear-gradient(135deg, var(--hp-blue-dark), var(--hp-teal));
+    color: white; text-align: center; padding: 72px 24px;
+  }
+  .cta h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 14px; }
+  .cta p { color: rgba(255,255,255,0.8); margin-bottom: 32px; font-size: 1.05rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-content">
+    <h1>Your Health Records,<br/><span class="accent">Unified & Secure</span></h1>
+    <p>Health Passport digitizes your entire medical history. Share with hospitals, access anywhere, and let your QR code speak for you in emergencies.</p>
+    <div class="hero-actions">
+      <a href="{% url 'login' %}" class="btn-hero-primary">🔐 Log In</a>
+      <a href="{% url 'lookup_records' %}" class="btn-hero-outline">🔎 Lookup Records</a>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="features-inner">
+    <div class="features-header">
+      <h2>Everything in One Place</h2>
+      <p>Designed for patients and hospitals to work better together</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#dbeafe;">🆔</div>
+        <h3>Digital Health ID</h3>
+        <p>Every patient gets a unique Health ID and a QR code for instant identification in any emergency situation.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#d1fae5;">📋</div>
+        <h3>Unified Medical Records</h3>
+        <p>All your prescriptions, lab results, reports, and scans—organized in one secure, searchable timeline.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fef3c7;">🔐</div>
+        <h3>You Control Access</h3>
+        <p>Hospitals may link to your account so they can upload records. Contact support if you want changes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ccfbf1;">📱</div>
+        <h3>QR Emergency Profile</h3>
+        <p>Scan your QR code to instantly see blood group, allergies, chronic conditions, and emergency contact.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ede9fe;">🏥</div>
+        <h3>Hospital Uploads & Verifies</h3>
+        <p>Hospitals upload verified records directly. No more lost papers or unverified claims—trust is built in.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fce7f3;">📊</div>
+        <h3>Health Timeline</h3>
+        <p>See your complete medical history as a chronological journey. Filter by type, hospital, or date.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Start Your Health Passport Today</h2>
+  <p>Free to use. Secure by design. Built for your peace of mind.</p>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+    <a href="{% url 'login' %}" class="btn-hero-primary" style="background:white;color:#1e3a8a;">Log In</a>
+    <a href="{% url 'lookup_records' %}" class="btn-hero-outline">Lookup Records</a>
+  </div>
+</section>
+{% endblock %}

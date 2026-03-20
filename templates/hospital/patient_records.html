@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+{% block title %}Patient Records — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+    <div>
+      <a href="{% url 'hospital_patients' %}" style="color:var(--hp-gray-400);text-decoration:none;font-size:0.875rem;">← Back to Patients</a>
+      <div class="page-header" style="margin-bottom:0;margin-top:8px;">
+        <h1>📋 {{ patient.user.get_full_name }}'s Records</h1>
+        <p>HPass No: {{ patient.hpass_number }} · Blood: {{ patient.blood_group }}</p>
+      </div>
+    </div>
+    {% if hospital.is_verified %}
+    <a href="{% url 'hospital_upload_record' patient.id %}" class="btn btn-primary">📤 Upload New Record</a>
+    {% endif %}
+  </div>
+
+  {% if records %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Record</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Uploaded By</th>
+          <th>Verified</th>
+          <th>File</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        <tr>
+          <td>
+            <div style="font-weight:600;">{{ record.title }}</div>
+            {% if record.description %}<div style="font-size:0.75rem;color:var(--hp-gray-400);">{{ record.description|truncatechars:50 }}</div>{% endif %}
+          </td>
+          <td><span class="badge badge-blue">{{ record.get_record_type_display }}</span></td>
+          <td>{{ record.record_date|date:"M d, Y" }}</td>
+          <td style="font-size:0.82rem;">{{ record.uploaded_by.hospital_name|default:"—" }}</td>
+          <td>{% if record.is_verified %}<span class="badge badge-green">✓ Yes</span>{% else %}<span class="badge badge-gray">No</span>{% endif %}</td>
+          <td>
+            {% if record.file %}
+              <a href="{{ record.file.url }}" target="_blank" class="btn btn-ghost btn-sm">View 👁️</a>
+            {% else %}
+              <span style="color:var(--hp-gray-400);font-size:0.9rem;">No file</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-icon">📂</div>
+      <h3>No Records Yet</h3>
+      <p>Upload the first medical record for this patient.</p>
+      {% if hospital.is_verified %}
+      <a href="{% url 'hospital_upload_record' patient.id %}" class="btn btn-primary">📤 Upload Record</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

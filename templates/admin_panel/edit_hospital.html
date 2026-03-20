@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+{% block title %}Admin - Edit Hospital{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>Edit Hospital</h1>
+    <p>Update hospital profile and contact details.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">{{ hospital.hospital_name }}</span>
+      <a href="{% url 'admin_hospitals' %}" class="btn btn-ghost">← Back to hospitals</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label" for="contact_first_name">Contact first name</label>
+        <input
+          class="form-input"
+          id="contact_first_name"
+          name="contact_first_name"
+          type="text"
+          value="{{ hospital.user.first_name }}"
+        />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="contact_last_name">Contact last name</label>
+        <input
+          class="form-input"
+          id="contact_last_name"
+          name="contact_last_name"
+          type="text"
+          value="{{ hospital.user.last_name }}"
+        />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="contact_email">Contact email</label>
+        <input
+          class="form-input"
+          id="contact_email"
+          name="contact_email"
+          type="email"
+          value="{{ hospital.user.email }}"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="contact_username">Hospital username</label>
+        <input
+          class="form-input"
+          id="contact_username"
+          name="contact_username"
+          type="text"
+          value="{{ hospital.user.username }}"
+        />
+        <p class="form-help">Change the login username for this hospital account.</p>
+      </div>
+
+      {% for field in form %}
+      <div class="form-group">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+          <div class="form-help">{{ field.help_text }}</div>
+        {% endif %}
+        {% if field.errors %}
+          <div class="form-error">{{ field.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-primary">Save changes</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

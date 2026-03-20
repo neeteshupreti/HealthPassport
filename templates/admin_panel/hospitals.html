@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+{% block title %}Admin - Manage Hospitals{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>Hospitals</h1>
+    <p>Review and manage hospital profiles.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <span class="card-title">Hospital Directory</span>
+      <span>
+        <a href="{% url 'register_hospital' %}" class="btn btn-primary btn-sm">+ Add Hospital</a>
+        <a href="{% url 'admin_doctors' %}" class="btn btn-outline btn-sm">🩺 Manage Doctors</a>
+        <a href="{% url 'admin_patients' %}" class="btn btn-outline btn-sm">🧑‍⚕️ Manage Patients</a>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-ghost btn-sm">← Back to dashboard</a>
+      </span>
+    </div>
+    <div style="margin:8px 0;">
+      <form method="get" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <input name="q" value="{{ q|default:'' }}" class="form-input" placeholder="Search hospitals..." style="min-width:220px;" />
+        <select name="province" class="form-input" style="min-width:180px;">
+          <option value="">All Provinces</option>
+          {% for val,label in provinces %}
+            <option value="{{ val }}" {% if province == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <select name="district" class="form-input" style="min-width:180px;">
+          <option value="">All Districts</option>
+          {% for val,label in districts %}
+            <option value="{{ val }}" {% if district == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Contact</th>
+            <th>Verified</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for hospital in hospitals %}
+          <tr>
+            <td>{{ hospital.hospital_name }}</td>
+            <td>{{ hospital.get_hospital_type_display }}</td>
+            <td>
+              {{ hospital.user.get_full_name }}<br>
+              <span style="font-size:0.85rem;color:var(--hp-gray-500);">{{ hospital.user.email }}</span>
+            </td>
+            <td>
+              {% if hospital.is_verified %}
+                <span class="badge badge-green">Verified</span>
+              {% else %}
+                <span class="badge badge-amber">Pending</span>
+              {% endif %}
+            </td>
+            <td>{{ hospital.user.date_joined|date:"M d, Y" }}</td>
+            <td>
+              <a href="{% url 'admin_edit_hospital' hospital.id %}" class="btn btn-outline btn-sm">Edit</a>
+              {% if not hospital.is_verified %}
+              <a href="{% url 'admin_verify_hospital' hospital.id %}" class="btn btn-success btn-sm">Verify</a>
+              {% endif %}
+              <a href="/admin/core/hospitalprofile/{{ hospital.id }}/change/" class="btn btn-ghost btn-sm">Django</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="text-align:center;">No hospitals found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

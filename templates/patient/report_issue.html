@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% block title %}Report an Issue{% endblock %}
+{% block content %}
+<div class="page-wrapper" style="max-width:720px;">
+  <div class="page-header">
+    <h1>Report an Issue</h1>
+    <p>Send a message to your linked hospital(s) or support team.</p>
+  </div>
+
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div class="form-error">{{ field.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-primary">Send Report</button>
+      <a href="{% url 'patient_dashboard' %}" class="btn btn-ghost">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

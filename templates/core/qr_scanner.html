@@ -1,0 +1,173 @@
+{% extends 'core/base.html' %}
+{% block title %}Scan QR — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper" style="max-width:760px;">
+  <div class="page-header">
+    <h1>📷 Scan Health QR</h1>
+    <p>Use your camera to scan a patient QR code. The patient & HPass will be shown instantly.</p>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <label for="qr-file-input" class="btn btn-ghost" style="width:auto;">Upload QR image</label>
+      <input type="file" id="qr-file-input" accept="image/*" style="display:none;" />
+      <small style="color:var(--hp-gray-500);">Or scan using your camera.</small>
+    </div>
+
+    <video id="video" autoplay playsinline style="width:100%;border-radius:12px;max-height:420px;background:#000;"></video>
+    <div id="scan-status" style="margin-top:14px;font-size:0.95rem;color:var(--hp-gray-600);">Point your camera at a QR code.</div>
+  </div>
+
+  <div id="result" class="card" style="margin-top:22px;display:none;">
+    <h2 style="margin-bottom:12px;">Patient Info</h2>
+    <div id="result-content"></div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-start;">
+      <a id="result-link" href="#" class="btn btn-primary">View Record</a>
+      <button id="scan-again" class="btn btn-ghost">Scan Again</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+<script>
+const video = document.getElementById('video');
+const scanStatus = document.getElementById('scan-status');
+const resultBox = document.getElementById('result');
+const resultContent = document.getElementById('result-content');
+const resultLink = document.getElementById('result-link');
+const scanAgain = document.getElementById('scan-again');
+
+let scanning = false;
+let stream;
+let autoRedirectTimer = null;
+
+function updateStatus(text) {
+  scanStatus.textContent = text;
+}
+
+async function startCamera() {
+  if (scanning) return;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    video.srcObject = stream;
+    video.setAttribute('playsinline', true);
+    video.play();
+    scanning = true;
+    requestAnimationFrame(scanFrame);
+  } catch (err) {
+    updateStatus('Unable to access camera. Please allow camera access or scan the QR using another device.');
+  }
+}
+
+function stopCamera() {
+  scanning = false;
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+  }
+}
+
+function clearRedirectTimer() {
+  if (autoRedirectTimer) {
+    clearTimeout(autoRedirectTimer);
+    autoRedirectTimer = null;
+  }
+}
+
+function parseUrlForHPass(url) {
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split('/').filter(Boolean);
+    const scanIndex = parts.indexOf('scan');
+    if (scanIndex >= 0 && parts.length > scanIndex + 1) {
+      return parts[scanIndex + 1];
+    }
+  } catch (e) {
+    // ignore
+  }
+  return null;
+}
+
+function showResult(hpass) {
+  stopCamera();
+  clearRedirectTimer();
+  resultBox.style.display = 'block';
+  resultContent.innerHTML = `<div style="font-size:1rem;color:var(--hp-gray-700);">HPass Number: <strong>${hpass}</strong></div>`;
+  resultLink.href = `/scan/${encodeURIComponent(hpass)}/`;
+  updateStatus('QR scanned successfully. Redirecting to patient details...');
+  autoRedirectTimer = setTimeout(() => {
+    window.location.href = resultLink.href;
+  }, 1400);
+}
+
+function scanImageData(imageData) {
+  const code = jsQR(imageData.data, imageData.width, imageData.height);
+  if (code) {
+    const hpass = parseUrlForHPass(code.data) || code.data;
+    showResult(hpass);
+    return true;
+  }
+  return false;
+}
+
+function handleFileUpload(file) {
+  if (!file) return;
+  stopCamera();
+  updateStatus('Reading image...');
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      if (!scanImageData(imageData)) {
+        updateStatus('No QR code found in the image. Try another image or use the camera.');
+      }
+    };
+    img.onerror = () => {
+      updateStatus('Unable to load image. Please choose a valid image file.');
+    };
+    img.src = event.target.result;
+  };
+  reader.onerror = () => {
+    updateStatus('Failed to read file.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function scanFrame() {
+  if (!scanning) return;
+
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  if (scanImageData(imageData)) return;
+
+  requestAnimationFrame(scanFrame);
+}
+
+scanAgain.addEventListener('click', () => {
+  clearRedirectTimer();
+  resultBox.style.display = 'none';
+  updateStatus('Point your camera at a QR code.');
+  startCamera();
+});
+
+const fileInput = document.getElementById('qr-file-input');
+fileInput.addEventListener('change', (event) => {
+  const file = event.target.files && event.target.files[0];
+  handleFileUpload(file);
+});
+
+startCamera();
+</script>
+{% endblock %}

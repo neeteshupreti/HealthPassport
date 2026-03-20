@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% block title %}Register — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div style="max-width:600px;margin:40px auto;text-align:center;">
+    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;margin-bottom:10px;">Admin Account Management</h1>
+    <p class="text-muted mb-6">Only admins can create new patient and hospital accounts. Use the options below to get started.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <a href="{% url 'register_patient' %}" style="text-decoration:none;">
+        <div class="card" style="padding:36px 24px;text-align:center;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--hp-blue)';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='transparent';this.style.transform='none'">
+          <div style="font-size:3rem;margin-bottom:16px;">🧑‍⚕️</div>
+          <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;color:var(--hp-blue);margin-bottom:8px;">Create Patient</h2>
+          <p style="color:var(--hp-gray-500);font-size:0.875rem;line-height:1.6;">Generate an HPass number and create a patient account.</p>
+        </div>
+      </a>
+      <a href="{% url 'register_hospital' %}" style="text-decoration:none;">
+        <div class="card" style="padding:36px 24px;text-align:center;cursor:pointer;transition:all 0.2s;border:2px solid transparent;" onmouseover="this.style.borderColor='var(--hp-teal)';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='transparent';this.style.transform='none'">
+          <div style="font-size:3rem;margin-bottom:16px;">🏥</div>
+          <h2 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.25rem;color:var(--hp-teal);margin-bottom:8px;">Create Hospital</h2>
+          <p style="color:var(--hp-gray-500);font-size:0.875rem;line-height:1.6;">Register a new hospital account (will require admin verification).</p>
+        </div>
+      </a>
+    </div>
+    <p style="margin-top:24px;color:var(--hp-gray-500);font-size:0.875rem;">Already have an account? <a href="{% url 'login' %}" style="color:var(--hp-blue);font-weight:600;">Sign in</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% block title %}Add Doctor — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header">
+    <h1>➕ Assign Existing Doctor</h1>
+    <p>Choose a doctor added by admin and assign them to your hospital.</p>
+  </div>
+
+  <div class="card">
+    <div class="form-filter" style="margin-bottom:14px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;"> 
+      <div class="form-group" style="margin:0;flex:1;min-width:220px;">
+        <label class="form-label">Filter doctors</label>
+        <input type="text" name="q" value="{{ search_query|default:'' }}" class="form-input" placeholder="Name, NMC, specialization or email" form="doctor-search-form" />
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="submit" form="doctor-search-form" class="btn btn-primary btn-sm">Filter</button>
+        <a href="{% url 'hospital_add_doctor' %}" class="btn btn-ghost btn-sm">Clear</a>
+      </div>
+    </div>
+    <form id="doctor-search-form" method="get"></form>
+
+    {% if search_query %}
+      <div class="form-note" style="margin-bottom:12px;">Showing {{ available_count }} doctor(s) matching “{{ search_query }}”.</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Select Doctor</label>
+        {{ form.doctor }}
+      </div>
+      <div style="display:flex;gap:12px;margin-top:14px;">
+        <button type="submit" class="btn btn-primary">Assign Doctor</button>
+        <a href="{% url 'hospital_doctors' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

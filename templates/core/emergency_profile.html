@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🚨 Emergency Profile — {{ patient.user.get_full_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #0f172a; color: white; min-height: 100vh; padding: 24px 16px; }
+    .container { max-width: 480px; margin: 0 auto; }
+    .header { text-align: center; padding: 32px 0 24px; }
+    .emergency-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #ef4444; color: white; padding: 8px 20px;
+      border-radius: 24px; font-weight: 700; font-size: 0.9rem;
+      letter-spacing: 0.05em; margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.8;} }
+    .patient-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 6px; }
+    .health-id { color: #60a5fa; font-family: 'Syne', sans-serif; font-weight: 700; letter-spacing: 0.1em; font-size: 1.1rem; }
+
+    .card { background: #1e293b; border-radius: 16px; padding: 20px; margin-bottom: 14px; border: 1px solid #334155; }
+    .card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 14px; }
+
+    .blood-group {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 3rem;
+      color: #ef4444; text-align: center; padding: 20px;
+      background: rgba(239,68,68,0.1); border-radius: 12px;
+      border: 2px solid rgba(239,68,68,0.3);
+    }
+    .blood-group .label { font-size: 0.85rem; color: #fca5a5; margin-bottom: 4px; font-weight: 500; }
+
+    .tag { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; margin: 3px; }
+    .tag-red { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+    .tag-amber { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+
+    .contact-card {
+      background: linear-gradient(135deg, #1e3a8a, #0d9488);
+      border-radius: 14px; padding: 20px; margin-bottom: 14px;
+    }
+    .contact-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; margin-bottom: 4px; }
+    .contact-phone { font-size: 1.5rem; font-weight: 700; color: #7dd3fc; }
+    .call-btn {
+      display: block; text-align: center;
+      background: #10b981; color: white; padding: 14px;
+      border-radius: 12px; font-weight: 700; font-size: 1.1rem;
+      text-decoration: none; margin-top: 14px;
+      transition: background 0.2s;
+    }
+    .call-btn:hover { background: #059669; }
+
+    .footer-note { text-align: center; color: #475569; font-size: 0.78rem; padding: 20px 0; }
+    .footer-note a { color: #60a5fa; }
+
+    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 0.875rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #94a3b8; }
+    .info-value { font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="emergency-badge">🚨 EMERGENCY PROFILE</div>
+    <div class="patient-name">{{ patient.user.get_full_name }}</div>
+    <div class="health-id">HPass No: {{ patient.hpass_number }}</div>
+  </div>
+
+  <!-- Blood Group -->
+  <div class="card">
+    <div class="blood-group">
+      <div class="label">BLOOD GROUP</div>
+      {{ patient.blood_group }}
+    </div>
+  </div>
+
+  <!-- Basic Info -->
+  <div class="card">
+    <div class="card-title">Patient Information</div>
+    {% if patient.date_of_birth %}
+    <div class="info-row">
+      <span class="info-label">Date of Birth</span>
+      <span class="info-value">{{ patient.date_of_birth }}</span>
+    </div>
+    {% endif %}
+    {% if patient.gender %}
+    <div class="info-row">
+      <span class="info-label">Gender</span>
+      <span class="info-value">{{ patient.get_gender_display }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Allergies -->
+  {% if patient.get_allergies_list %}
+  <div class="card">
+    <div class="card-title">⚠️ Known Allergies</div>
+    {% for allergy in patient.get_allergies_list %}
+      <span class="tag tag-red">{{ allergy }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Chronic Diseases -->
+  {% if patient.get_chronic_diseases_list %}
+  <div class="card">
+    <div class="card-title">🏥 Chronic Conditions</div>
+    {% for disease in patient.get_chronic_diseases_list %}
+      <span class="tag tag-amber">{{ disease }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Emergency Contact -->
+  {% if patient.emergency_contact_name %}
+  <div class="contact-card">
+    <div class="card-title" style="color:rgba(255,255,255,0.7);margin-bottom:10px;">📞 EMERGENCY CONTACT</div>
+    <div class="contact-name">{{ patient.emergency_contact_name }}</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;margin-bottom:8px;">{{ patient.emergency_contact_relation }}</div>
+    <div class="contact-phone">{{ patient.emergency_contact_phone }}</div>
+    <a href="tel:{{ patient.emergency_contact_phone }}" class="call-btn">📞 Call Now</a>
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;color:#475569;">
+    <p>No emergency contact listed</p>
+  </div>
+  {% endif %}
+
+  <div class="footer-note">
+    <p>This is a read-only emergency profile for <strong>{{ patient.user.get_full_name }}</strong></p>
+    <p style="margin-top:4px;">Powered by <a href="/">Health Passport</a> 🏥</p>
+  </div>
+</div>
+</body>
+</html>

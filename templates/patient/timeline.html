@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+{% block title %}Health Timeline — Health Passport{% endblock %}
+{% block extra_head %}
+<style>
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--hp-blue), var(--hp-teal)); border-radius: 2px; }
+  .timeline-item { position: relative; margin-bottom: 28px; }
+  .timeline-dot { position: absolute; left: -26px; top: 8px; width: 16px; height: 16px; border-radius: 50%; background: var(--hp-blue); border: 3px solid white; box-shadow: 0 0 0 2px var(--hp-blue); z-index: 1; }
+  .timeline-dot.verified { background: var(--hp-green); box-shadow: 0 0 0 2px var(--hp-green); }
+  .timeline-card { background: white; border-radius: 14px; border: 1px solid var(--hp-gray-200); padding: 20px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+  .timeline-card:hover { box-shadow: var(--shadow-md); transform: translateX(4px); }
+  .timeline-year { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--hp-blue); margin-bottom: 20px; padding: 8px 16px; background: #eff6ff; border-radius: 8px; display: inline-block; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>📊 Health Timeline</h1>
+    <p>Your complete medical history in chronological order</p>
+  </div>
+
+  {% if records %}
+    {% regroup records by record_date.year as records_by_year %}
+    <div class="timeline">
+      {% for year_group in records_by_year %}
+        <div class="timeline-year">{{ year_group.grouper }}</div>
+        {% for record in year_group.list %}
+        <div class="timeline-item">
+          <div class="timeline-dot {% if record.is_verified %}verified{% endif %}"></div>
+          <div class="timeline-card">
+            <div style="display:flex;align-items:flex-start;gap:14px;">
+              <div class="record-icon record-icon-{{ record.record_type }}" style="flex-shrink:0;">
+                {% if record.record_type == 'report' %}📄
+                {% elif record.record_type == 'prescription' %}💊
+                {% elif record.record_type == 'lab_result' %}🧪
+                {% elif record.record_type == 'scan' %}🔬
+                {% elif record.record_type == 'vaccination' %}💉
+                {% elif record.record_type == 'discharge' %}🏠
+                {% else %}📁{% endif %}
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                  <div>
+                    <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:4px;">{{ record.title }}</h3>
+                    <div style="font-size:0.78rem;color:var(--hp-gray-500);">
+                      <span class="badge badge-blue" style="font-size:0.7rem;">{{ record.get_record_type_display }}</span>
+                      &nbsp;·&nbsp; {{ record.record_date|date:"F j, Y" }}
+                      &nbsp;·&nbsp; 🏥 {{ record.uploaded_by.hospital_name|default:"Unknown" }}
+                      {% if record.doctor %}
+                        &nbsp;·&nbsp; 👨‍⚕️ <a href="{% url 'doctor_profile' record.doctor.id %}" class="text-blue" style="font-weight:600;">Dr. {{ record.doctor.name }}</a>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    {% if record.is_verified %}<span class="badge badge-green">✓ Verified</span>{% endif %}
+                    <a href="{% url 'download_record' record.id %}" class="btn btn-ghost btn-sm">⬇</a>
+                  </div>
+                </div>
+                {% if record.description %}
+                  <p style="font-size:0.85rem;color:var(--hp-gray-600);margin-top:8px;line-height:1.5;">{{ record.description }}</p>
+                {% endif %}
+                {% if record.get_tags_list %}
+                <div style="margin-top:8px;">
+                  {% for tag in record.get_tags_list %}
+                    <span class="badge badge-gray" style="margin:2px;font-size:0.7rem;">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <h3>No Timeline Yet</h3>
+        <p>Your health journey will be charted here as hospitals upload your records.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

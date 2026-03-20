@@ -1,0 +1,136 @@
+{% extends 'core/base.html' %}
+{% block title %}Hospital Registration — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div style="max-width:620px;margin:40px auto;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:2rem;margin-bottom:10px;">🏥</div>
+      <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;">Hospital Registration</h1>
+      <p class="text-muted mt-2">Create a hospital account (admin access required). The admin will verify your hospital before access is granted.</p>
+    </div>
+    <div class="card">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="background:#eff6ff;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:0.875rem;color:var(--hp-blue);">
+          ℹ️ After registration, an admin will verify your hospital account before you can upload records.
+        </div>
+
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:14px;color:var(--hp-gray-700);">Hospital Details</h3>
+        <div class="form-group">
+          <label class="form-label">Hospital / Clinic Name *</label>
+          <input type="text" name="hospital_name" class="form-input" placeholder="e.g. Birgunj Medical Center" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Hospital Type</label>
+            <select name="hospital_type" class="form-input">
+              <option value="general">General Hospital</option>
+              <option value="specialty">Specialty Clinic</option>
+              <option value="diagnostic">Diagnostic Center</option>
+              <option value="pharmacy">Pharmacy</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Registration / License No.</label>
+            <input type="text" name="registration_number" class="form-input" placeholder="Optional" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Province</label>
+            <select name="province" class="form-input" id="hospital_province">
+              <option value="">Select Province</option>
+              <option value="Province 1">Province 1</option>
+              <option value="Province 2">Province 2</option>
+              <option value="Bagmati Province">Bagmati Province</option>
+              <option value="Gandaki Province">Gandaki Province</option>
+              <option value="Lumbini Province">Lumbini Province</option>
+              <option value="Karnali Province">Karnali Province</option>
+              <option value="Sudurpashchim Province">Sudurpashchim Province</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">District</label>
+            <select name="district" class="form-input" id="hospital_district">
+              <option value="">Select District</option>
+              <option>Bhojpur</option><option>Dhankuta</option><option>Ilam</option><option>Jhapa</option>
+              <option>Khotang</option><option>Morang</option><option>Okhaldhunga</option><option>Panchthar</option>
+              <option>Sankhuwasabha</option><option>Solukhumbu</option><option>Sunsari</option><option>Taplejung</option>
+              <option>Terhathum</option><option>Udayapur</option><option>Saptari</option><option>Siraha</option>
+              <option>Dhanusha</option><option>Mahottari</option><option>Sarlahi</option><option>Rautahat</option>
+              <option>Bara</option><option>Parsa</option><option>Kathmandu</option><option>Bhaktapur</option>
+              <option>Lalitpur</option><option>Kavrepalanchok</option><option>Chitwan</option><option>Nuwakot</option>
+              <option>Dhading</option><option>Rasuwa</option><option>Sindhupalchok</option><option>Makwanpur</option>
+              <option>Ramechhap</option><option>Dolakha</option><option>Sindhuli</option>
+              <option>Gorkha</option><option>Lamjung</option><option>Tanahu</option><option>Syangja</option>
+              <option>Kaski</option><option>Manang</option><option>Mustang</option><option>Myagdi</option>
+              <option>Baglung</option><option>Arghakhanchi</option><option>Gulmi</option><option>Kapilvastu</option>
+              <option>Nawalpur</option><option>Palpa</option><option>Rupandehi</option><option>Dang</option>
+              <option>Bardiya</option><option>Banke</option><option>Pyuthan</option><option>Rolpa</option>
+              <option>Rukum East</option><option>Rukum West</option><option>Salyan</option><option>Dailekh</option>
+              <option>Jajarkot</option><option>Jumla</option><option>Kalikot</option><option>Mugu</option>
+              <option>Humla</option><option>Dolpa</option><option>Baitadi</option><option>Darchula</option>
+              <option>Bajhang</option><option>Bajura</option><option>Achham</option><option>Doti</option>
+              <option>Kailali</option><option>Kanchanpur</option><option>Dadeldhura</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Municipality</label>
+          <input type="text" name="municipality" class="form-input" placeholder="Municipality (e.g. Kathmandu Metropolitan City)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <textarea name="address" class="form-input" rows="2" placeholder="Street / ward / city"> </textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hospital Logo</label>
+          <input type="file" name="logo" class="form-input-file" accept="image/*" />
+        </div>
+
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:14px;margin-top:20px;color:var(--hp-gray-700);">Contact Person (Account)</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" name="first_name" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="last_name" class="form-input" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" name="phone" class="form-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username *</label>
+          <input type="text" name="username" class="form-input" required />
+          {% if form.username.errors %}<p class="form-error">{{ form.username.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password *</label>
+            <input type="password" name="password1" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password *</label>
+            <input type="password" name="password2" class="form-input" required />
+          </div>
+        </div>
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}<div class="alert alert-error">❌ {{ error }}</div>{% endfor %}
+        {% endif %}
+        <button type="submit" class="btn btn-teal w-full" style="margin-top:8px;padding:12px;">Register Hospital</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+{% block title %}Scan HPass — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header">
+    <h1>📷 Scan Result</h1>
+    <p>HPass #{{ patient.hpass_number }} — {{ patient.user.get_full_name }}</p>
+  </div>
+
+  <div class="card mb-4">
+    <div style="display:flex;align-items:flex-start;gap:14px;">
+      <div style="width:80px;height:80px;border-radius:16px;background:var(--hp-blue);display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;">👤</div>
+      <div>
+        <div style="font-weight:700;font-size:1.1rem;">{{ patient.user.get_full_name }}</div>
+        <div style="color:var(--hp-gray-500);font-size:0.9rem;">HPass No: {{ patient.hpass_number }}</div>
+        <div style="color:var(--hp-gray-500);font-size:0.9rem;">Gender: {{ patient.get_gender_display|default:'Not set' }}</div>
+        <div style="color:var(--hp-gray-500);font-size:0.9rem;">Blood Group: {{ patient.blood_group }}</div>
+        {% if patient.allergies %}
+          <div style="margin-top:6px;"><strong>Allergies:</strong> {{ patient.allergies|linebreaksbr }}</div>
+        {% endif %}
+        {% if patient.chronic_diseases %}
+          <div><strong>Chronic conditions:</strong> {{ patient.chronic_diseases|linebreaksbr }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-bottom:12px;">Unlock Medical Records</h2>
+    <p style="margin-bottom:16px;">Enter the date of birth associated with this HPass to view the patient's timeline of records.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">HPass Number</label>
+        {{ form.hpass_number }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date of Birth</label>
+        {{ form.date_of_birth }}
+      </div>
+      <button type="submit" class="btn btn-primary">View Records</button>
+    </form>
+  </div>
+
+  {% if records %}
+  <div class="card mt-4">
+    <div class="card-header"><span class="card-title">🗂️ Medical Timeline</span></div>
+    {% for record in records %}
+      <div style="padding:12px 0;border-bottom:1px solid var(--hp-gray-100);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="font-weight:600;">{{ record.title }}</div>
+            <div style="font-size:0.82rem;color:var(--hp-gray-500);">{{ record.get_record_type_display }} · {{ record.record_date|date:'M d, Y' }}</div>
+          </div>
+          {% if record.doctor %}
+            <div style="font-size:0.82rem;color:var(--hp-gray-600);text-align:right;">Dr. {{ record.doctor.name }}</div>
+          {% endif %}
+        </div>
+        {% if record.description %}
+          <div style="margin-top:6px;color:var(--hp-gray-600);font-size:0.9rem;">{{ record.description|linebreaksbr }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

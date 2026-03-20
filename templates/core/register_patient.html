@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+{% block title %}Patient Registration — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div style="max-width:560px;margin:40px auto;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:2rem;margin-bottom:10px;">🧑‍⚕️</div>
+      <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;">Patient Registration</h1>
+      <p class="text-muted mt-2">Create a patient account (admin access required).</p>
+    </div>
+    <div class="card">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name *</label>
+            <input type="text" name="first_name" class="form-input" value="{{ form.first_name.value|default:'' }}" placeholder="First Name" required />
+            {% if form.first_name.errors %}<p class="form-error">{{ form.first_name.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name *</label>
+            <input type="text" name="last_name" class="form-input" value="{{ form.last_name.value|default:'' }}" placeholder="Last Name" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" name="email" class="form-input" value="{{ form.email.value|default:'' }}" placeholder="your@email.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username *</label>
+          <input type="text" name="username" class="form-input" value="{{ form.username.value|default:'' }}" placeholder="Choose a username" required />
+          {% if form.username.errors %}<p class="form-error">{{ form.username.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="text" name="phone" class="form-input" placeholder="+977 98XXXXXXXX" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profile Photo</label>
+          <input type="file" name="profile_photo" class="form-input-file" accept="image/*" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password *</label>
+            <input type="password" name="password1" class="form-input" placeholder="Strong password" required />
+            {% if form.password1.errors %}<p class="form-error">{{ form.password1.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password *</label>
+            <input type="password" name="password2" class="form-input" placeholder="Repeat password" required />
+            {% if form.password2.errors %}<p class="form-error">{{ form.password2.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}
+            <div class="alert alert-error">❌ {{ error }}</div>
+          {% endfor %}
+        {% endif %}
+        <button type="submit" class="btn btn-primary w-full" style="margin-top:8px;padding:12px;">Create Patient Account</button>
+      </form>
+      <p style="text-align:center;margin-top:16px;font-size:0.875rem;color:var(--hp-gray-500);">
+        Already have an account? <a href="{% url 'login' %}" style="color:var(--hp-blue);font-weight:600;">Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

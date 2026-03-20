@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% block title %}Doctors — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>👩‍⚕️ Doctors at {{ hospital.hospital_name }}</h1>
+    <p>Manage the doctors who can be assigned to patient records.</p>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="{% url 'hospital_add_doctor' %}" class="btn btn-primary btn-sm">+ Add Doctor</a>
+      <a href="{% url 'hospital_dashboard' %}" class="btn btn-ghost btn-sm">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="card" style="margin-bottom:20px;">
+    <form method="get" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:200px;">
+        <label style="display:block;font-weight:600;margin-bottom:6px;font-size:0.9rem;">Search Doctor</label>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Name, email, phone, or NMC number..." style="width:100%;padding:10px 12px;border:1px solid var(--hp-gray-200);border-radius:8px;font-size:0.9rem;">
+      </div>
+      {% if specializations %}
+      <div style="flex:0 0 auto;min-width:150px;">
+        <label style="display:block;font-weight:600;margin-bottom:6px;font-size:0.9rem;">Specialization</label>
+        <select name="specialization" style="width:100%;padding:10px 12px;border:1px solid var(--hp-gray-200);border-radius:8px;font-size:0.9rem;">
+          <option value="">All Specializations</option>
+          {% for spec in specializations %}
+          <option value="{{ spec }}" {% if specialization_filter == spec %}selected{% endif %}>{{ spec }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div style="display:flex;gap:8px;">
+        <button type="submit" class="btn btn-primary btn-sm">🔍 Search</button>
+        <a href="{% url 'hospital_doctors' %}" class="btn btn-ghost btn-sm">Clear</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Info -->
+  {% if search_query or specialization_filter %}
+  <div style="margin-bottom:16px;padding:12px;background:#f0f9ff;border-left:4px solid var(--hp-blue);border-radius:4px;">
+    <div style="font-size:0.9rem;color:var(--hp-gray-600);">
+      Found <strong>{{ doctors.count }}</strong> doctor{{ doctors.count|pluralize }} 
+      {% if search_query %}matching "{{ search_query }}"{% endif %}
+      {% if specialization_filter %} with specialization "{{ specialization_filter }}"{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if doctors %}
+    <div class="card">
+      {% for doctor in doctors %}
+        <div style="padding:12px 0;border-bottom:1px solid var(--hp-gray-100);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              {% if doctor.photo %}
+                <img src="{{ doctor.photo.url }}" alt="Dr. {{ doctor.name }}" style="width:42px;height:42px;border-radius:999px;object-fit:cover;border:1px solid var(--hp-gray-200);" />
+              {% else %}
+                <div style="width:42px;height:42px;border-radius:999px;background:var(--hp-gray-100);display:flex;align-items:center;justify-content:center;color:var(--hp-gray-400);">👤</div>
+              {% endif %}
+              <div>
+                <div style="font-weight:600;"><a href="{% url 'doctor_profile' doctor.id %}" class="text-blue">Dr. {{ doctor.name }}</a></div>
+                <div style="font-size:0.85rem;color:var(--hp-gray-500);">
+                  {{ doctor.specialization }}{% if doctor.email %} · {{ doctor.email }}{% endif %}{% if doctor.phone %} · {{ doctor.phone }}{% endif %}
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <a href="{% url 'doctor_profile' doctor.id %}" class="btn btn-ghost btn-sm">View</a>
+              <a href="{% url 'hospital_delete_doctor' doctor.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Unassign this doctor from the hospital?');">Unassign</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card" style="text-align:center;">
+      <div style="padding:28px;">
+        <div style="font-size:2rem;">🩺</div>
+        <h3 style="margin-top:12px;">
+          {% if search_query or specialization_filter %}
+            No doctors found
+          {% else %}
+            No doctors added yet
+          {% endif %}
+        </h3>
+        <p style="color:var(--hp-gray-500);">
+          {% if search_query or specialization_filter %}
+            Try adjusting your search or filter criteria.
+          {% else %}
+            Add doctors so they can be linked to medical records and prescriptions.
+          {% endif %}
+        </p>
+        {% if not search_query and not specialization_filter %}
+        <a href="{% url 'hospital_add_doctor' %}" class="btn btn-primary" style="margin-top:12px;">Add Your First Doctor</a>
+        {% else %}
+        <a href="{% url 'hospital_doctors' %}" class="btn btn-ghost" style="margin-top:12px;">Clear Filters</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

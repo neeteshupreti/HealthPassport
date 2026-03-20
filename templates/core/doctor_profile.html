@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+{% block title %}Doctor Profile — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header">
+    <h1>Dr. {{ doctor.name }}</h1>
+    <p>{{ doctor.specialization|default:'Medical professional' }}</p>
+  </div>
+
+  <div class="card mb-4">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+      <div>
+        <p><strong>NMC No:</strong> {{ doctor.nmc_number }}</p>
+        <p><strong>Hospital(s):</strong> {% for h in doctor.hospitals.all %}<a href="{% url 'hospital_dashboard' %}" class="text-blue">{{ h.hospital_name }}</a>{% if not forloop.last %}, {% endif %}{% empty %}<span class="text-muted">Unassigned</span>{% endfor %}</p>
+        <p><strong>Email:</strong> {{ doctor.email|default:'Not provided' }}</p>
+        <p><strong>Phone:</strong> {{ doctor.phone|default:'Not provided' }}</p>
+      </div>
+      <div style="text-align:right;">
+        {% if doctor.photo %}
+          <img src="{{ doctor.photo.url }}" alt="Dr {{ doctor.name }}" style="width:120px;height:120px;border-radius:999px;border:1px solid var(--hp-gray-200);object-fit:cover;" />
+        {% else %}
+          <div style="width:120px;height:120px;border-radius:999px;background:var(--hp-gray-100);display:flex;align-items:center;justify-content:center;color:var(--hp-gray-500);">👨‍⚕️</div>
+        {% endif %}
+      </div>
+        <p><strong>Patients Treated:</strong> {{ patient_count }}</p>
+        <p><strong>Records Attached:</strong> {{ total_records }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Recent Records with this doctor</span></div>
+    {% for record in doctor.records.all|slice:':10' %}
+    <div style="padding:12px 0;border-bottom:1px solid var(--hp-gray-100);">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;">{{ record.title }}</div>
+          <div style="font-size:0.82rem;color:var(--hp-gray-500);">{{ record.get_record_type_display }} · {{ record.record_date|date:'M d, Y' }} · Patient: <a href="{% url 'scan_profile' record.patient.hpass_number %}" class="text-blue">{{ record.patient.user.get_full_name|default:record.patient.user.username }}</a></div>
+        </div>
+        <a href="{% url 'download_record' record.id %}" class="btn btn-ghost btn-sm">Download</a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state" style="padding:28px 16px;">
+      <div class="empty-state-icon">🩺</div>
+      <h3>No assigned records yet</h3>
+      <p>This doctor has not been assigned to any records yet.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

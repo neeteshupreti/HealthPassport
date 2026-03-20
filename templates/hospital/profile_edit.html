@@ -1,0 +1,74 @@
+{% extends 'core/base.html' %}
+{% block title %}Edit Hospital Profile — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header"><h1>✏️ Edit Hospital Profile</h1></div>
+  <div class="card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Hospital Name *</label>
+        <input type="text" name="hospital_name" class="form-input" value="{{ form.hospital_name.value|default:'' }}" required />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Hospital Type</label>
+          <select name="hospital_type" class="form-input">
+            {% for val, label in form.fields.hospital_type.choices %}
+              <option value="{{ val }}" {% if form.hospital_type.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Registration No.</label>
+          <input type="text" name="registration_number" class="form-input" value="{{ form.registration_number.value|default:'' }}" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Province</label>
+          <select name="province" class="form-input">
+            <option value="">Select Province</option>
+            {% for val,label in form.fields.province.choices %}
+              <option value="{{ val }}" {% if form.province.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">District</label>
+          <select name="district" class="form-input">
+            <option value="">Select District</option>
+            {% for val,label in form.fields.district.choices %}
+              <option value="{{ val }}" {% if form.district.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Municipality</label>
+          <input type="text" name="municipality" class="form-input" value="{{ form.municipality.value|default:'' }}" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Street / Ward / Locality</label>
+        <textarea name="address" class="form-input" rows="3">{{ form.address.value|default:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Website</label>
+        <input type="url" name="website" class="form-input" value="{{ form.website.value|default:'' }}" placeholder="https://" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-input" rows="3" placeholder="Brief description of services">{{ form.description.value|default:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hospital Logo</label>
+        <input type="file" name="logo" class="form-input-file" accept="image/*" />
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+        <a href="{% url 'hospital_dashboard' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

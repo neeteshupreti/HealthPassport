@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% block title %}Upload Record — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header">
+    <h1>📤 Upload Medical Record</h1>
+    <p>Upload a verified record for this patient</p>
+  </div>
+
+  <!-- Patient Card -->
+  <div class="card mb-4" style="padding:18px;border:1.5px solid #dbeafe;background:#eff6ff;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--hp-blue);display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:white;">👤</div>
+      <div>
+        <div style="font-weight:700;">{{ patient.user.get_full_name }}</div>
+        <div style="font-size:0.82rem;color:var(--hp-gray-500);">HPass No: {{ patient.hpass_number }} · Blood: {{ patient.blood_group }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="background:#d1fae5;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.875rem;color:#065f46;display:flex;align-items:center;gap:8px;">
+      ✅ Records you upload will be automatically marked as <strong>Verified</strong> by {{ hospital.hospital_name }}
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Record Type *</label>
+          <select name="record_type" class="form-input" required>
+            <option value="">Select type...</option>
+            {% for val, label in form.fields.record_type.choices %}
+              <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Record Date *</label>
+          <input type="date" name="record_date" class="form-input" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Blood Test Results - Full CBC" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Detailed Notes / Description *</label>
+        <textarea name="description" class="form-input" rows="5" placeholder="Describe the record, key findings, diagnosis, or treatment notes..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Attending Doctor (optional)</label>
+        {{ form.doctor }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags (optional)</label>
+        <input type="text" name="tags" class="form-input" placeholder="e.g. cardiology, annual, blood test" />
+        <p class="form-help">Comma-separated tags help organize records</p>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button type="submit" class="btn btn-teal" style="padding:11px 28px;">📤 Upload & Verify Record</button>
+        <a href="{% url 'hospital_patient_records' patient.id %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

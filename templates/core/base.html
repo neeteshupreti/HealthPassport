@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Health Passport{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --hp-blue: #1a56db;
+      --hp-blue-light: #3b82f6;
+      --hp-blue-dark: #1e3a8a;
+      --hp-teal: #0d9488;
+      --hp-teal-light: #14b8a6;
+      --hp-red: #ef4444;
+      --hp-amber: #f59e0b;
+      --hp-green: #10b981;
+      --hp-surface: #f0f4ff;
+      --hp-white: #ffffff;
+      --hp-gray-50: #f8fafc;
+      --hp-gray-100: #f1f5f9;
+      --hp-gray-200: #e2e8f0;
+      --hp-gray-300: #cbd5e1;
+      --hp-gray-400: #94a3b8;
+      --hp-gray-500: #64748b;
+      --hp-gray-700: #334155;
+      --hp-gray-900: #0f172a;
+      --nav-h: 64px;
+      --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 16px rgba(26,86,219,0.10);
+      --shadow-lg: 0 8px 32px rgba(26,86,219,0.14);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--hp-surface);
+      color: var(--hp-gray-900);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--nav-h);
+      background: var(--hp-white);
+      border-bottom: 1px solid var(--hp-gray-200);
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: center;
+    }
+    .nav-inner {
+      max-width: 1280px; width: 100%; margin: 0 auto;
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--hp-gray-900);
+    }
+    .nav-brand-icon {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--hp-blue), var(--hp-teal));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .nav-brand-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .nav-brand-text span { color: var(--hp-blue); }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link {
+      text-decoration: none; color: var(--hp-gray-500);
+      padding: 8px 14px; border-radius: 8px;
+      font-weight: 500; font-size: 0.875rem;
+      transition: all 0.15s;
+    }
+    .nav-link:hover { color: var(--hp-blue); background: var(--hp-gray-100); }
+    .nav-link.active { color: var(--hp-blue); background: #eff6ff; }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 8px;
+      font-weight: 600; font-size: 0.875rem;
+      text-decoration: none; transition: all 0.15s;
+      cursor: pointer; border: none;
+    }
+    .nav-btn-primary { background: var(--hp-blue); color: white; }
+    .nav-btn-primary:hover { background: var(--hp-blue-dark); }
+    .nav-btn-ghost { background: transparent; color: var(--hp-gray-700); }
+    .nav-btn-ghost:hover { background: var(--hp-gray-100); }
+    .notif-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; border-radius: 9px;
+      background: var(--hp-red); color: white; font-size: 11px; font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* LAYOUT */
+    .page-wrapper {
+      max-width: 1280px; margin: 0 auto;
+      padding: 32px 24px;
+    }
+    .page-wrapper.narrow { max-width: 720px; }
+    .page-wrapper.wide { max-width: 1400px; }
+
+    /* CARDS */
+    .card {
+      background: var(--hp-white);
+      border-radius: var(--radius);
+      border: 1px solid var(--hp-gray-200);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--hp-gray-100);
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1.05rem; color: var(--hp-gray-900);
+    }
+
+    /* STATS GRID */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--hp-white); border-radius: var(--radius);
+      border: 1px solid var(--hp-gray-200); padding: 20px;
+      text-align: center;
+    }
+    .stat-number {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 2rem; color: var(--hp-blue); line-height: 1;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--hp-gray-500); margin-top: 4px; font-weight: 500; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: 8px;
+      font-weight: 600; font-size: 0.875rem;
+      text-decoration: none; transition: all 0.15s;
+      cursor: pointer; border: none; font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+    .btn-primary { background: var(--hp-blue); color: white; }
+    .btn-primary:hover { background: var(--hp-blue-dark); box-shadow: var(--shadow-md); }
+    .btn-teal { background: var(--hp-teal); color: white; }
+    .btn-teal:hover { background: #0f766e; }
+    .btn-danger { background: var(--hp-red); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-warning { background: var(--hp-amber); color: white; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-ghost { background: var(--hp-gray-100); color: var(--hp-gray-700); }
+    .btn-ghost:hover { background: var(--hp-gray-200); }
+    .btn-outline { background: transparent; color: var(--hp-blue); border: 1.5px solid var(--hp-blue); }
+    .btn-outline:hover { background: #eff6ff; }
+    .btn-success { background: var(--hp-green); color: white; }
+    .btn-success:hover { background: #059669; }
+
+    /* FORMS */
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--hp-gray-700); margin-bottom: 6px; }
+    .form-input, input[type=text].form-input, input[type=email].form-input,
+    input[type=password].form-input, input[type=date].form-input,
+    select.form-input, textarea.form-input {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--hp-gray-300); border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      color: var(--hp-gray-900); background: var(--hp-white);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--hp-blue); box-shadow: 0 0 0 3px rgba(26,86,219,0.12); }
+    .form-input-file { width: 100%; padding: 10px 14px; border: 2px dashed var(--hp-gray-300);
+      border-radius: 8px; cursor: pointer; }
+    .form-input-file:hover { border-color: var(--hp-blue); }
+    .form-help { font-size: 0.78rem; color: var(--hp-gray-400); margin-top: 4px; }
+    .form-error { font-size: 0.78rem; color: var(--hp-red); margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-green { background: #d1fae5; color: #065f46; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-gray { background: var(--hp-gray-100); color: var(--hp-gray-600); }
+    .badge-teal { background: #ccfbf1; color: #0f4c3f; }
+
+    /* ALERTS / MESSAGES */
+    .messages-container { max-width: 1280px; margin: 0 auto; padding: 12px 24px 0; }
+    .alert {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 10px; margin-bottom: 10px;
+      font-size: 0.875rem; font-weight: 500;
+    }
+    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--hp-gray-200); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: var(--hp-gray-50); padding: 12px 16px; text-align: left; font-size: 0.8rem; font-weight: 700; color: var(--hp-gray-500); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--hp-gray-200); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--hp-gray-100); font-size: 0.875rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--hp-gray-50); }
+
+    /* HEALTH ID */
+    .health-id-display {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 1.25rem; letter-spacing: 0.08em;
+      color: var(--hp-blue); background: #eff6ff;
+      padding: 8px 18px; border-radius: 8px;
+      display: inline-block;
+    }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 1.75rem; color: var(--hp-gray-900); line-height: 1.2;
+    }
+    .page-header p { color: var(--hp-gray-500); margin-top: 6px; }
+
+    /* GRID LAYOUTS */
+    .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    @media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 48px 24px; }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; margin-bottom: 8px; color: var(--hp-gray-700); }
+    .empty-state p { color: var(--hp-gray-400); font-size: 0.875rem; margin-bottom: 16px; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 24px; color: var(--hp-gray-400); font-size: 0.8rem; border-top: 1px solid var(--hp-gray-200); margin-top: 48px; }
+
+    /* UTILITY */
+    .text-blue { color: var(--hp-blue); }
+    .text-green { color: var(--hp-green); }
+    .text-red { color: var(--hp-red); }
+    .text-muted { color: var(--hp-gray-500); }
+    .text-sm { font-size: 0.85rem; }
+    .font-bold { font-weight: 700; }
+    .flex { display: flex; } .items-center { align-items: center; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; }
+    .justify-between { justify-content: space-between; }
+    .mt-1 { margin-top: 4px; } .mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; } .mt-4 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 16px; } .mb-6 { margin-bottom: 24px; }
+    .w-full { width: 100%; }
+
+    /* RECORD TYPE ICONS */
+    .record-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .record-icon-report { background: #dbeafe; }
+    .record-icon-prescription { background: #d1fae5; }
+    .record-icon-lab_result { background: #fef3c7; }
+    .record-icon-scan { background: #ede9fe; }
+    .record-icon-vaccination { background: #ccfbf1; }
+    .record-icon-discharge { background: #fce7f3; }
+    .record-icon-other { background: var(--hp-gray-100); }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="{% url 'home' %}" class="nav-brand">
+      <div class="nav-brand-icon">🏥</div>
+      <div class="nav-brand-text">Health<span>Passport</span></div>
+    </a>
+
+    <div class="nav-links">
+      {% if user.is_authenticated %}
+        <a href="{% url 'lookup_records' %}" class="nav-link">Lookup</a>
+        <a href="{% url 'qr_scanner' %}" class="nav-link">Scan QR</a>
+        {% if user.profile.role == 'patient' %}
+          <a href="{% url 'patient_dashboard' %}" class="nav-link">Dashboard</a>
+          <a href="{% url 'patient_records' %}" class="nav-link">Records</a>
+          <a href="{% url 'patient_timeline' %}" class="nav-link">Timeline</a>
+            {% elif user.profile.role == 'hospital' %}
+          <a href="{% url 'hospital_dashboard' %}" class="nav-link">Dashboard</a>
+          <a href="{% url 'hospital_patients' %}" class="nav-link">My Patients</a>
+          <a href="{% url 'hospital_search_patient' %}" class="nav-link">Search</a>
+        {% endif %}
+        {% if user.is_staff %}
+          <a href="{% url 'admin_dashboard' %}" class="nav-link">⚙️ Admin</a>
+        {% endif %}
+        <a href="{% url 'notifications' %}" class="nav-link" style="display:flex;align-items:center;gap:4px;">
+          🔔
+          {% if unread_notifications_count > 0 %}
+            <span class="notif-badge">{{ unread_notifications_count }}</span>
+          {% endif %}
+        </a>
+        <span class="nav-link text-muted">{{ user.get_full_name|default:user.username }}</span>
+        <a href="{% url 'logout' %}" class="nav-btn nav-btn-ghost">Log out</a>
+      {% else %}
+        <a href="{% url 'lookup_records' %}" class="nav-link">Lookup</a>
+        <a href="{% url 'qr_scanner' %}" class="nav-link">Scan QR</a>
+        <a href="{% url 'login' %}" class="nav-link">Login</a>
+        <a href="{% url 'login' %}" class="nav-btn nav-btn-primary">Get Started</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}">
+      {% if message.tags == 'success' %}✅{% elif message.tags == 'error' %}❌{% elif message.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer>
+  <p>Health Passport — Unified Digital Medical Record System &nbsp;·&nbsp; Built for good health 🩺</p>
+</footer>
+
+</body>
+</html>

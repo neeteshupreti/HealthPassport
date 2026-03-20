@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% block title %}Request Access — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header">
+    <h1>📩 Request Patient Access</h1>
+    <p>Send an access request to this patient</p>
+  </div>
+
+  <div class="card mb-4" style="padding:20px;border:1.5px solid var(--hp-gray-200);">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--hp-blue),var(--hp-teal));display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:white;">👤</div>
+      <div>
+        <div style="font-weight:700;font-size:1.1rem;">{{ patient.user.get_full_name }}</div>
+        <div class="health-id-display" style="font-size:0.85rem;padding:4px 10px;margin-top:4px;">{{ patient.hpass_number }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p style="color:var(--hp-gray-600);font-size:0.9rem;margin-bottom:20px;line-height:1.6;">
+      This access request flow is deprecated. Use the patient search page to link patients directly.
+    </p>
+    <a href="{% url 'hospital_search_patient' %}" class="btn btn-primary">Go to patient search</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends 'core/base.html' %}
+{% block title %}Hospital Dashboard — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+    <div class="page-header" style="margin-bottom:0;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        {% if hospital.logo %}
+          <img src="{{ hospital.logo.url }}" alt="{{ hospital.hospital_name }}" style="width:52px;height:52px;border-radius:10px;object-fit:cover;border:1px solid var(--hp-gray-200);" />
+        {% else %}
+          <div style="width:52px;height:52px;border-radius:10px;background:var(--hp-gray-100);display:flex;align-items:center;justify-content:center;color:var(--hp-gray-400);font-size:1.3rem;">🏥</div>
+        {% endif %}
+        <div>
+          <h1>🏥 {{ hospital.hospital_name }}</h1>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+        <span class="badge badge-blue">{{ hospital.get_hospital_type_display }}</span>
+        {% if hospital.is_verified %}
+          <span class="badge badge-green">✓ Verified</span>
+        {% else %}
+          <span class="badge badge-amber">⏳ Pending Verification</span>
+        {% endif %}
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="{% url 'hospital_profile_edit' %}" class="btn btn-ghost btn-sm">✏️ Edit Profile</a>
+      <a href="{% url 'hospital_search_patient' %}" class="btn btn-teal btn-sm">🔍 Search Patient</a>
+    </div>
+  </div>
+
+  {% if not hospital.is_verified %}
+  <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+    <strong style="color:#92400e;">⏳ Verification Pending</strong>
+    <p style="color:#78350f;font-size:0.875rem;margin-top:4px;">Your hospital is awaiting admin verification. Once verified, you can upload medical records and request patient access.</p>
+  </div>
+  {% endif %}
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">{{ approved_patients.count }}</div>
+      <div class="stat-label">Linked Patients</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--hp-amber);">{{ pending_sent.count }}</div>
+      <div class="stat-label">Pending Requests</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ total_uploads }}</div>
+      <div class="stat-label">Records Uploaded</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--hp-green);">{{ unread_notifications.count }}</div>
+      <div class="stat-label">Notifications</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <!-- Recent Uploads -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <span class="card-title">📤 Recent Uploads</span>
+          <a href="{% url 'hospital_patients' %}" class="btn btn-ghost btn-sm">View Patients</a>
+        </div>
+        {% if recent_uploads %}
+          {% for record in recent_uploads %}
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--hp-gray-100);">
+            <div class="record-icon record-icon-{{ record.record_type }}">
+              {% if record.record_type == 'report' %}📄
+              {% elif record.record_type == 'prescription' %}💊
+              {% elif record.record_type == 'lab_result' %}🧪
+              {% elif record.record_type == 'scan' %}🔬
+              {% else %}📁{% endif %}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:0.9rem;">{{ record.title }}</div>
+              <div style="font-size:0.78rem;color:var(--hp-gray-400);">
+                For: {{ record.patient.user.get_full_name }} · {{ record.uploaded_at|date:"M d, Y" }}
+              </div>
+            </div>
+            <span class="badge badge-green">✓ Verified</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state" style="padding:24px;">
+            <div class="empty-state-icon">📂</div>
+            <h3>No Uploads Yet</h3>
+            <p>Link with patients and upload their medical records.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Linked Patients -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">👥 Linked Patients</span>
+          <a href="{% url 'hospital_patients' %}" class="btn btn-ghost btn-sm">All Patients</a>
+        </div>
+        {% if approved_patients %}
+          {% for ar in approved_patients|slice:":5" %}
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--hp-gray-100);">
+            <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:1rem;">👤</div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:0.9rem;">{{ ar.patient.user.get_full_name }}</div>
+              <div style="font-size:0.78rem;color:var(--hp-gray-400);">HPass: {{ ar.patient.hpass_number }} · {{ ar.patient.blood_group }}</div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <a href="{% url 'hospital_patient_records' ar.patient.id %}" class="btn btn-ghost btn-sm">Records</a>
+              {% if hospital.is_verified %}
+              <a href="{% url 'hospital_upload_record' ar.patient.id %}" class="btn btn-primary btn-sm">Upload</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted text-sm" style="text-align:center;padding:20px;">No patients linked. Search for patients to link them for record uploads.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div>
+      <!-- Quick Actions -->
+      <div class="card mb-4">
+        <div class="card-title" style="margin-bottom:14px;">⚡ Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="{% url 'hospital_search_patient' %}" class="btn btn-primary" style="justify-content:center;">
+            🔍 Search & Link Patient
+          </a>
+          <a href="{% url 'hospital_patients' %}" class="btn btn-outline" style="justify-content:center;">
+            👥 View All Linked Patients
+          </a>
+          <a href="{% url 'hospital_doctors' %}" class="btn btn-outline" style="justify-content:center;">
+            🩺 Manage Doctors
+          </a>
+          <a href="{% url 'hospital_profile_edit' %}" class="btn btn-ghost" style="justify-content:center;">
+            ✏️ Update Hospital Profile
+          </a>
+        </div>
+      </div>
+
+      <!-- Pending Sent Requests -->
+      {% if pending_sent %}
+      <div class="card mb-4">
+        <div class="card-title" style="margin-bottom:14px;">⏳ Pending Patient Approvals</div>
+        {% for ar in pending_sent %}
+        <div style="padding:10px 0;border-bottom:1px solid var(--hp-gray-100);">
+          <div style="font-weight:600;font-size:0.875rem;">{{ ar.patient.user.get_full_name }}</div>
+          <div style="font-size:0.78rem;color:var(--hp-gray-400);">Requested {{ ar.requested_at|date:"M d, Y" }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Notifications -->
+      {% if unread_notifications %}
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🔔 Notifications</span>
+          <a href="{% url 'notifications' %}" class="btn btn-ghost btn-sm">All</a>
+        </div>
+        {% for notif in unread_notifications %}
+        <div style="padding:10px 0;border-bottom:1px solid var(--hp-gray-100);">
+          <div style="font-weight:600;font-size:0.85rem;">{{ notif.title }}</div>
+          <div style="font-size:0.78rem;color:var(--hp-gray-500);">{{ notif.message|truncatechars:80 }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

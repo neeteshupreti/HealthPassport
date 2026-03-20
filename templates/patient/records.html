@@ -1,0 +1,96 @@
+{% extends 'core/base.html' %}
+{% block title %}My Records — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+    <div class="page-header" style="margin-bottom:0;">
+      <h1>📋 My Medical Records</h1>
+      <p>All your records in one place</p>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="card" style="padding:14px 20px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:0.85rem;font-weight:600;color:var(--hp-gray-500);">Filter:</span>
+      <a href="{% url 'patient_records' %}" class="btn btn-sm {% if not selected_type %}btn-primary{% else %}btn-ghost{% endif %}">All</a>
+      {% for val, label in record_types %}
+        <a href="?type={{ val }}" class="btn btn-sm {% if selected_type == val %}btn-primary{% else %}btn-ghost{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if records %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;">
+      {% for record in records %}
+      <div class="card" style="padding:20px;transition:all 0.2s;" onmouseover="this.style.boxShadow='var(--shadow-lg)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='var(--shadow-sm)';this.style.transform='none'">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+          <div class="record-icon record-icon-{{ record.record_type }}">
+            {% if record.record_type == 'report' %}📄
+            {% elif record.record_type == 'prescription' %}💊
+            {% elif record.record_type == 'lab_result' %}🧪
+            {% elif record.record_type == 'scan' %}🔬
+            {% elif record.record_type == 'vaccination' %}💉
+            {% elif record.record_type == 'discharge' %}🏠
+            {% else %}📁{% endif %}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;line-height:1.3;">{{ record.title }}</div>
+            <div style="font-size:0.78rem;color:var(--hp-gray-400);margin-top:2px;">{{ record.get_record_type_display }}</div>
+          </div>
+          {% if record.is_verified %}
+            <span class="badge badge-green">✓ Verified</span>
+          {% endif %}
+        </div>
+
+        {% if record.description %}
+          <p style="font-size:0.85rem;color:var(--hp-gray-600);margin-bottom:12px;line-height:1.5;">{{ record.description|truncatechars:80 }}</p>
+        {% endif %}
+
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+            <span style="color:var(--hp-gray-400);">📅 Date</span>
+            <span style="font-weight:500;">{{ record.record_date }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+            <span style="color:var(--hp-gray-400);">🏥 Hospital</span>
+            <span style="font-weight:500;text-align:right;max-width:60%;">{{ record.uploaded_by.hospital_name|default:"N/A" }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+            <span style="color:var(--hp-gray-400);">📤 Uploaded</span>
+            <span style="font-weight:500;">{{ record.uploaded_at|date:"M d, Y" }}</span>
+          </div>
+        </div>
+
+        {% if record.get_tags_list %}
+        <div style="margin-bottom:12px;">
+          {% for tag in record.get_tags_list %}
+            <span class="badge badge-blue" style="margin:2px 2px 2px 0;font-size:0.7rem;">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="display:flex;gap:8px;">
+          {% if record.file %}
+            <a href="{% url 'download_record' record.id %}" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">⬇️ Download</a>
+            {% if record.is_image or record.is_pdf %}
+              <a href="{{ record.file.url }}" target="_blank" class="btn btn-ghost btn-sm">👁️</a>
+            {% endif %}
+          {% else %}
+            <span style="color:var(--hp-gray-500);font-size:0.85rem;">No file attached</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-state-icon">📂</div>
+        <h3>No Records Found</h3>
+        <p>{% if selected_type %}No records of this type found. {% else %}No medical records yet. {% endif %}Link with a hospital to start receiving records.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

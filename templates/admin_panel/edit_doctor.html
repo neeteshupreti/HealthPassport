@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+{% block title %}{% if is_new %}Add Doctor{% else %}Edit Doctor{% endif %} — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper narrow">
+  <div class="page-header">
+    <h1>{% if is_new %}➕ Add Doctor{% else %}✏️ Edit Doctor{% endif %}</h1>
+    <p>{% if is_new %}Create a doctor record that hospitals can assign.{% else %}Edit doctor details and hospital assignment.{% endif %}</p>
+  </div>
+
+  <div class="card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">NMC Number *</label>
+        {{ form.nmc_number }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Name *</label>
+        {{ form.name }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Specialization</label>
+        {{ form.specialization }}
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label class="form-label">Phone</label>
+          {{ form.phone }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Photo</label>
+        {{ form.photo }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hospital Assignments</label>
+        {{ form.hospitals }}
+      </div>
+      <div style="display:flex;gap:12px;margin-top:14px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'admin_doctors' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

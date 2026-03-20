@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+{% block title %}Search Patient — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>🔍 Search Patient</h1>
+    <p>Find a patient by their Health ID or name to link them for record uploads.</p>
+  </div>
+
+  {% if not hospital.is_verified %}
+  <div class="alert alert-warning">⚠️ Your hospital is not verified yet. You can search patients but cannot link them until verified.</div>
+  {% endif %}
+
+  <div class="card mb-6">
+    <form method="get">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="form-group" style="flex:1;min-width:200px;margin-bottom:0;">
+          <label class="form-label">Patient Health ID</label>
+          <input type="text" name="health_id" class="form-input" placeholder="Enter Health ID (e.g. A1B2C3D4)" value="{{ form.health_id.value|default:'' }}" />
+        </div>
+        <div style="padding:0 12px;align-self:center;color:var(--hp-gray-400);font-weight:500;">OR</div>
+        <div class="form-group" style="flex:1;min-width:200px;margin-bottom:0;">
+          <label class="form-label">Patient Name</label>
+          <input type="text" name="name" class="form-input" placeholder="Search by name" value="{{ form.name.value|default:'' }}" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="height:42px;">🔍 Search</button>
+      </div>
+    </form>
+  </div>
+
+  {% if searched %}
+    {% if patients %}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
+        {% for patient in patients %}
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--hp-blue),var(--hp-teal));display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:white;">👤</div>
+            <div>
+              <div style="font-weight:700;font-size:1rem;">{{ patient.user.get_full_name }}</div>
+              <div class="health-id-display" style="font-size:0.85rem;padding:4px 10px;">{{ patient.hpass_number }}</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+              <span class="text-muted">Blood Group</span>
+              <strong style="color:var(--hp-red);">{{ patient.blood_group }}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+              <span class="text-muted">Gender</span>
+              <span>{{ patient.get_gender_display|default:"—" }}</span>
+            </div>
+          </div>
+
+          {% if patient.access_status == 'approved' %}
+            <div class="badge badge-green" style="display:flex;justify-content:center;padding:8px;">✅ Linked</div>
+            <a href="{% url 'hospital_patient_records' patient.id %}" class="btn btn-primary btn-sm w-full" style="margin-top:8px;justify-content:center;">View Records</a>
+            <form method="post" action="{% url 'hospital_unlink_patient' patient.id %}" style="margin-top:8px;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm w-full">🚫 Unlink Patient</button>
+            </form>
+          {% else %}
+            {% if hospital.is_verified %}
+              <form method="post" action="{% url 'hospital_link_patient' patient.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-full">🔗 Link Patient</button>
+              </form>
+            {% else %}
+              <div class="btn btn-ghost w-full" style="justify-content:center;cursor:not-allowed;opacity:0.6;">Verify Hospital First</div>
+            {% endif %}
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <h3>No Patients Found</h3>
+          <p>No patients matched your search. Try searching by their Health ID.</p>
+        </div>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-state-icon">🔎</div>
+        <h3>Search for a Patient</h3>
+        <p>Enter a patient's Health ID or name above to find them and link them for record uploads.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

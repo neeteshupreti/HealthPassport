@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+{% block title %}Admin Panel — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>⚙️ Admin Dashboard</h1>
+    <p>System overview and hospital verification</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">{{ total_patients }}</div>
+      <div class="stat-label">Total Patients</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ total_hospitals }}</div>
+      <div class="stat-label">Total Hospitals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:var(--hp-green);">{{ verified_hospitals }}</div>
+      <div class="stat-label">Verified Hospitals</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ total_records }}</div>
+      <div class="stat-label">Medical Records</div>
+    </div>
+  </div>
+
+  <!-- Pending Hospital Verification -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">⏳ Hospitals Awaiting Verification</span>
+      {% if pending_hospitals %}<span class="badge badge-amber">{{ pending_hospitals.count }}</span>{% endif %}
+    </div>
+    {% if pending_hospitals %}
+    <div class="table-wrap" style="border:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Hospital</th>
+            <th>Type</th>
+            <th>Registration No.</th>
+            <th>Contact Person</th>
+            <th>Registered</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for hospital in pending_hospitals %}
+          <tr>
+            <td>
+              <div style="font-weight:700;">{{ hospital.hospital_name }}</div>
+              {% if hospital.description %}<div style="font-size:0.75rem;color:var(--hp-gray-400);">{{ hospital.description|truncatechars:50 }}</div>{% endif %}
+            </td>
+            <td><span class="badge badge-blue">{{ hospital.get_hospital_type_display }}</span></td>
+            <td>{{ hospital.registration_number|default:"—" }}</td>
+            <td>
+              <div>{{ hospital.user.get_full_name }}</div>
+              <div style="font-size:0.75rem;color:var(--hp-gray-400);">{{ hospital.user.email }}</div>
+            </td>
+            <td style="font-size:0.82rem;">{{ hospital.user.date_joined|date:"M d, Y" }}</td>
+            <td>
+              <a href="{% url 'admin_verify_hospital' hospital.id %}" class="btn btn-success btn-sm" onclick="return confirm('Verify {{ hospital.hospital_name }}?')">
+                ✓ Verify
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:28px;">
+      <div class="empty-state-icon">✅</div>
+      <h3>All Hospitals Verified</h3>
+      <p>No pending verification requests.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap;">
+    <a href="/admin/" class="btn btn-primary">🔧 Django Admin Panel</a>
+    <a href="{% url 'admin_patients' %}" class="btn btn-outline">🧑‍⚕️ Manage Patients</a>
+    <a href="{% url 'admin_hospitals' %}" class="btn btn-outline">🏥 Manage Hospitals</a>
+    <a href="{% url 'admin_doctors' %}" class="btn btn-outline">🩺 Manage Doctors</a>
+  </div>
+</div>
+{% endblock %}

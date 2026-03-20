@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% block title %}Admin - Manage Users{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-header">
+    <h1>Users</h1>
+    <p>View and manage user accounts and roles.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">User accounts</span>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-ghost">← Back to dashboard</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Active</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in users %}
+          <tr>
+            <td>{{ row.user.username }}</td>
+            <td>{{ row.user.get_full_name|default:"—" }}</td>
+            <td>{{ row.user.email|default:"—" }}</td>
+            <td>
+              {% if row.profile %}
+                {{ row.profile.role|capfirst }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td>{{ row.user.is_active|yesno:"Yes,No" }}</td>
+            <td>{{ row.user.date_joined|date:"M d, Y" }}</td>
+            <td>
+              <a href="{% url 'admin_edit_user' row.user.id %}" class="btn btn-outline btn-sm">Edit</a>
+              <a href="/admin/auth/user/{{ row.user.id }}/change/" class="btn btn-ghost btn-sm">Django</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" style="text-align:center;">No user accounts found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

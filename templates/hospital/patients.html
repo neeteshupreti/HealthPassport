@@ -1,0 +1,132 @@
+{% extends 'core/base.html' %}
+{% block title %}My Patients — Health Passport{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;">
+    <div class="page-header" style="margin-bottom:0;">
+      <h1>👥 Linked Patients</h1>
+      <p>Patients you can upload records for (link/unlink as needed)</p>
+    </div>
+    <a href="{% url 'hospital_search_patient' %}" class="btn btn-primary">🔍 Find Patients</a>
+  </div>
+
+  <!-- Search and Filter Section -->
+  {% if approved %}
+  <div class="card" style="margin-bottom:20px;">
+    <form method="get" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:200px;">
+        <label style="display:block;font-weight:600;margin-bottom:6px;font-size:0.9rem;">Search Patient</label>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Name, email, or Health ID..." style="width:100%;padding:10px 12px;border:1px solid var(--hp-gray-200);border-radius:8px;font-size:0.9rem;">
+      </div>
+      {% if blood_groups %}
+      <div style="flex:0 0 auto;min-width:140px;">
+        <label style="display:block;font-weight:600;margin-bottom:6px;font-size:0.9rem;">Blood Group</label>
+        <select name="blood" style="width:100%;padding:10px 12px;border:1px solid var(--hp-gray-200);border-radius:8px;font-size:0.9rem;">
+          <option value="">All Blood Groups</option>
+          {% for bg in blood_groups %}
+          <option value="{{ bg }}" {% if blood_filter == bg %}selected{% endif %}>{{ bg }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      {% if genders %}
+      <div style="flex:0 0 auto;min-width:130px;">
+        <label style="display:block;font-weight:600;margin-bottom:6px;font-size:0.9rem;">Gender</label>
+        <select name="gender" style="width:100%;padding:10px 12px;border:1px solid var(--hp-gray-200);border-radius:8px;font-size:0.9rem;">
+          <option value="">All Genders</option>
+          {% for gender in genders %}
+          <option value="{{ gender }}" {% if gender_filter == gender %}selected{% endif %}>{{ gender|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div style="display:flex;gap:8px;">
+        <button type="submit" class="btn btn-primary btn-sm">🔍 Filter</button>
+        <a href="{% url 'hospital_patients' %}" class="btn btn-ghost btn-sm">Clear</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Info -->
+  {% if search_query or blood_filter or gender_filter %}
+  <div style="margin-bottom:16px;padding:12px;background:#f0f9ff;border-left:4px solid var(--hp-blue);border-radius:4px;">
+    <div style="font-size:0.9rem;color:var(--hp-gray-600);">
+      Showing <strong>{{ approved.count }}</strong> of <strong>{{ approved|length }}</strong> patient{{ approved.count|pluralize }}
+      {% if search_query %} matching "{{ search_query }}"{% endif %}
+      {% if blood_filter %} with blood group {{ blood_filter }}{% endif %}
+      {% if gender_filter %} - {{ gender_filter|title }}{% endif %}
+    </div>
+  </div>
+  {% endif %}
+  {% endif %}
+
+  {% if approved %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Health ID</th>
+            <th>Blood Group</th>
+            <th>Gender</th>
+            <th>Records</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ar in approved %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;">👤</div>
+                <div>
+                  <div style="font-weight:600;">{{ ar.patient.user.get_full_name }}</div>
+                  <div style="font-size:0.75rem;color:var(--hp-gray-400);">{{ ar.patient.user.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="health-id-display" style="font-size:0.8rem;padding:4px 10px;">{{ ar.patient.hpass_number }}</span></td>
+            <td><span class="badge badge-red">🩸 {{ ar.patient.blood_group }}</span></td>
+            <td>{{ ar.patient.get_gender_display|default:"—" }}</td>
+            <td>{{ ar.patient.medical_records.count }} records</td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <a href="{% url 'hospital_patient_records' ar.patient.id %}" class="btn btn-ghost btn-sm">📋 Records</a>
+                {% if hospital.is_verified %}
+                <a href="{% url 'hospital_upload_record' ar.patient.id %}" class="btn btn-primary btn-sm">📤 Upload</a>
+                {% endif %}
+                <form method="post" action="{% url 'hospital_unlink_patient' ar.patient.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm">🚫 Unlink</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-state-icon">👥</div>
+        <h3>
+          {% if search_query or blood_filter or gender_filter %}
+            No patients found
+          {% else %}
+            No Linked Patients
+          {% endif %}
+        </h3>
+        <p>
+          {% if search_query or blood_filter or gender_filter %}
+            Try adjusting your search or filter criteria.
+          {% else %}
+            Search for patients and request access to their records. Patients must approve before you can upload.
+          {% endif %}
+        </p>
+        <a href="{% url 'hospital_search_patient' %}" class="btn btn-primary">🔍 Search Patients</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
